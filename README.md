@@ -8,6 +8,6 @@ Autoexec file configuration for your dota 2 with special binds from Meepo and In
 `On steam list of games` > `Properties` > `Set Launch Options` > `-novid -console`
 
 
-### Adding The Autoexec.cfg file
+### Adding the Autoexec.cfg File
 
     C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\dota\cfg
