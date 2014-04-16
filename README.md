@@ -10,4 +10,4 @@ Autoexec file configuration for your dota 2 with special binds from Meepo and In
 
 ### Adding the Autoexec.cfg File
 
-    C:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\dota\cfg
+    X:\Program Files (x86)\Steam\SteamApps\common\dota 2 beta\dota\cfg
