@@ -19,12 +19,19 @@
     $counterScore = isset( $_POST['counterScore'] ) ? $_POST['counterScore'] : '';
     $submit = isset( $_POST['submit'] ) ? $_POST['submit'] : '';
 
+    $hiddenCounterHeroId = isset( $_POST['hidden_counter_hero_id'] ) ? $_POST['hidden_counter_hero_id'] : '';
+    $hiddenScore = isset( $_POST['hidden_score'] ) ? $_POST['hidden_score'] : '';
+
 
 
      if (!empty($_POST)){
 
         if ( $myHero && $counterHero && $counterScore ) {
             $obj->insertCounter( $myHero , $counterHero, $counterScore );
+        }
+
+        if ( $myHero && $hiddenCounterHeroId && $hiddenCounterHeroId ){
+              $obj->deleteCounter( $myHero , $hiddenCounterHeroId, $hiddenScore );
         }
     }
 
@@ -96,13 +103,15 @@
 
             document.getElementById("hidden_counter_hero_id").value = counter_hero_id;
             document.getElementById("hidden_score").value = score;
+
+            document.getElementById("admin").submit();
         }
 
 
 
     </script>
 
-    <form action="admin.php" method="post">
+    <form action="admin.php" method="post" id="admin">
 
 
     <div>
@@ -114,16 +123,11 @@
                 </div>
                 <div><?php print SelectBox::create("myHero", $myHero , $heroes); ?></div>
 
-
-
-
-
-                 <br/><br/>
+                <br/><br/>
                 <div class="header">Add a Counter</div>
-                <div><?php print SelectBox::create("counterHero", $myHero , $heroes , false); ?></div>
+                <div><?php print SelectBox::create("counterHero", '' , $heroes , false); ?></div>
                 <div><?php print SelectBox::create("counterScore", '' , $counterScores, false); ?></div>
-
-
+                <div><input type="submit"></div>
 
 
 
@@ -134,8 +138,8 @@
                 <br/><br/>
                 <div class="header">List of Counters</div>
 
-                <input type="text" id="hidden_counter_hero_id" name="hidden_counter_hero_id">
-                <input type="text" id="hidden_score" name="hidden_score">
+                <input type="hidden" id="hidden_counter_hero_id" name="hidden_counter_hero_id">
+                <input type="hidden" id="hidden_score" name="hidden_score">
 
                 <div>
                     <table cellpadding="8" cellspacing="0" border="1">

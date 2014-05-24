@@ -140,15 +140,11 @@ class Hero {
                         <td>{$h['type']}</td>
                         <td>{$h['score']}</td>
                         <td>
-
+                            <input id='test' type='button' onclick=' deleteCounter({$h['counter_hero_id']},{$h['score']})' value='X'>
                         </td>
 
                     </tr>
                     ";
-
-             //<input id='test' type='button' onclick=' deleteCounter({$h['counter_hero_id']},{$h['score']})' value='X'>
-
-
         }
 
         return $html;
@@ -164,4 +160,16 @@ class Hero {
         mysql_query($q);
 
     }
+
+
+    function deleteCounter($heroId, $counterHeroId, $score ){
+
+        $q = "DELETE FROM counter where hero_id = '$heroId' and counter_hero_id = '$counterHeroId' and score = '$score'  LIMIT 1";
+
+        print $q;
+
+        mysql_query($q);
+
+    }
+
 }
