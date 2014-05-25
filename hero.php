@@ -37,13 +37,14 @@ class Hero {
 
         $heroes = array();
 
-        $enemyPicks = implode(",", $enemyPicks);
+        $enemyPicksCSV = implode(",", $enemyPicks);
 
         $yourPicks[] = "0";
-        $banPicks   = array_merge( $yourPicks , $banPicks );
+        //$banPicks   = array_merge( $yourPicks , $banPicks  );
+        $banPicks   = array_merge( $yourPicks , $banPicks , $enemyPicks  );
         $banPicks  = implode(",", $banPicks);
 
-        if(!$enemyPicks) {
+        if(!$enemyPicksCSV) {
             return $heroes;
         }
 
@@ -58,7 +59,7 @@ class Hero {
                 INNER JOIN hero AS h
                 ON c.counter_hero_id = h.id
                 WHERE
-                    c.hero_id IN ($enemyPicks )
+                    c.hero_id IN ($enemyPicksCSV )
                     AND c.counter_hero_id NOT IN ($banPicks)
                     AND h.role = '$role'
                 GROUP BY c.counter_hero_id
