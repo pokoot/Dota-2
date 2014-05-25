@@ -111,7 +111,7 @@
 
     </script>
 
-    <form action="admin.php" method="post" id="admin">
+    <form action="pick.php" method="post" id="admin">
 
 
     <div>
