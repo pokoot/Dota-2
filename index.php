@@ -1,127 +1,15 @@
 <?php
 
-    $link = mysql_connect('localhost', 'root', '');
-    if (!$link) { die('Could not connect: ' . mysql_error());}
-
-
-    mysql_select_db('dota', $link);
+    include_once "bootstrap.php";
+    include_once "hero.php";
+    include_once "selectbox.php";
 
 
     $query =  "SELECT * FROM hero ORDER BY name ASC";
 
 
-    class Hero {
-
-        function __construct(){
-        }
-
-        function getAll(){
-
-            $q =  "SELECT * FROM hero ORDER BY name ASC";
-            $r = mysql_query($q);
-
-            $heroes = array();
-            while ($row = mysql_fetch_assoc($r)) {
-                $heroes[]  = array(
-                    'id'    => $row['id'] ,
-                    'type'  => $row['type'],
-                    'role'  => $row['role'],
-                    'name'  => $row["name"]
-                );
-
-            }
-            return $heroes;
-        }
-
-        /**
-         * Get all suggested pics
-         *
-         * @access public
-         * @param mixed $enemyPicks
-         * @param mixed $yourPicks
-         * @param mixed $banPicks
-         * @param mixed $role
-         * @return void
-         */
-        function getSuggestedPicks( $enemyPicks, $yourPicks, $banPicks, $role ){
-
-            $heroes = array();
-
-            $enemyPicks = implode(",", $enemyPicks);
-
-            $yourPicks[] = "0";
-            $banPicks   = array_merge( $yourPicks , $banPicks );
-            $banPicks  = implode(",", $banPicks);
-
-            if(!$enemyPicks) {
-                return $heroes;
-            }
-
-            $q = "
-                    SELECT
-                        h.name,
-                        h.type,
-                        h.role,
-                        c.* ,
-                        SUM(c.score) as total
-                    FROM counter AS c
-                    INNER JOIN hero AS h
-                    ON c.counter_hero_id = h.id
-                    WHERE
-                        c.hero_id IN ($enemyPicks )
-                        AND c.counter_hero_id NOT IN ($banPicks)
-                        AND h.role = '$role'
-                    GROUP BY c.counter_hero_id
-                    ORDER BY total DESC
-                    ";
-
-
-            //print "<pre>$q</pre>";
-
-            $r = mysql_query($q);
-
-
-            while ($row = mysql_fetch_assoc($r)) {
-                $heroes[]  = array(
-                    'type'  => $row['type'],
-                    'role'  => $row['role'],
-                    'name'  => $row["name"],
-                    'total' => $row["total"]
-                );
-
-            }
-            return $heroes;
-
-        }
-
-
-        function displaySuggestedHeroes($heroes){
-
-            foreach( $heroes AS $p ){
-                print "<div>{$p['total']} - {$p['name']}</div>";
-            }
-
-        }
-    }
-
-    class SelectBox {
-
-        static function create( $name, $value = '' , $options ) {
-            $opt = '<option value="0">Please Select</option>';
-            foreach( $options AS $o ){
-                $sel = ($value == $o['id']) ? 'selected' : '';
-                $opt .= "<option value=" . $o['id'] . " $sel >" . $o['name'] . "</option>";
-            }
-            return "<select name='$name' onchange='submit();' >" . $opt . "</select>";
-        }
-    }
-
-
-
     $obj = new Hero();
     $heroes = $obj->getAll();
-
-
 
 
     $yourPick1 = isset( $_POST['yourPick1'] ) ? $_POST['yourPick1'] : '';
