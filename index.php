@@ -33,34 +33,50 @@
             return $heroes;
         }
 
-        function getSuggestedPicks( $enemyPicks , $role ){
+        /**
+         * Get all suggested pics
+         *
+         * @access public
+         * @param mixed $enemyPicks
+         * @param mixed $yourPicks
+         * @param mixed $banPicks
+         * @param mixed $role
+         * @return void
+         */
+        function getSuggestedPicks( $enemyPicks, $yourPicks, $banPicks, $role ){
 
             $heroes = array();
 
-            $picks = implode(",", $enemyPicks);
+            $enemyPicks = implode(",", $enemyPicks);
 
-            if(!$picks) {
+            $yourPicks[] = "0";
+            $banPicks   = array_merge( $yourPicks , $banPicks );
+            $banPicks  = implode(",", $banPicks);
+
+            if(!$enemyPicks) {
                 return $heroes;
             }
-
-
 
             $q = "
                     SELECT
                         h.name,
                         h.type,
                         h.role,
-                        w.* ,
-                        SUM(w.score) as total
-                    FROM weak AS w
+                        c.* ,
+                        SUM(c.score) as total
+                    FROM counter AS c
                     INNER JOIN hero AS h
-                    ON w.weak_against_hero_id = h.id
+                    ON c.counter_hero_id = h.id
                     WHERE
-                        w.hero_id IN ($picks )
+                        c.hero_id IN ($enemyPicks )
+                        AND c.counter_hero_id NOT IN ($banPicks)
                         AND h.role = '$role'
-                    GROUP BY w.weak_against_hero_id
+                    GROUP BY c.counter_hero_id
                     ORDER BY total DESC
                     ";
+
+
+            //print "<pre>$q</pre>";
 
             $r = mysql_query($q);
 
@@ -78,6 +94,7 @@
 
         }
 
+
         function displaySuggestedHeroes($heroes){
 
             foreach( $heroes AS $p ){
@@ -90,7 +107,7 @@
     class SelectBox {
 
         static function create( $name, $value = '' , $options ) {
-            $opt = '<option value="">Please Select</option>';
+            $opt = '<option value="0">Please Select</option>';
             foreach( $options AS $o ){
                 $sel = ($value == $o['id']) ? 'selected' : '';
                 $opt .= "<option value=" . $o['id'] . " $sel >" . $o['name'] . "</option>";
@@ -132,14 +149,23 @@
     $enemyBan5 = isset( $_POST['enemyBan5'] ) ? $_POST['enemyBan5'] : '';
 
 
+    $yourPicks = array_filter( array( $yourPick1 , $yourPick2 , $yourPick3 , $yourPick4 , $yourPick5 ) );
     $enemyPicks = array_filter( array( $enemyPick1 , $enemyPick2 , $enemyPick3 , $enemyPick4 , $enemyPick5 ) );
 
-    $suggestedPicksCarry    = $obj->getSuggestedPicks( $enemyPicks , "CARRY");
-    $suggestedPicksSupport  = $obj->getSuggestedPicks( $enemyPicks , "SUPPORT");
-    $suggestedPicksMid      = $obj->getSuggestedPicks( $enemyPicks , "MID");
-    $suggestedPicksOfflane  = $obj->getSuggestedPicks( $enemyPicks , "OFFLANE");
-    $suggestedPicksTank     = $obj->getSuggestedPicks( $enemyPicks , "TANK");
+    $banPicks = array_filter( array( $yourBan1 , $yourBan2 , $yourBan3 , $yourBan4 , $yourBan5, $enemyBan1, $enemyBan2, $enemyBan3, $enemyBan4, $enemyBan5) );
 
+    $suggestedPicksCarry    = $obj->getSuggestedPicks( $enemyPicks , $yourPicks, $banPicks, "CARRY");
+    $suggestedPicksSupport  = $obj->getSuggestedPicks( $enemyPicks , $yourPicks, $banPicks, "SUPPORT");
+    $suggestedPicksMid      = $obj->getSuggestedPicks( $enemyPicks , $yourPicks, $banPicks, "MID");
+    $suggestedPicksOfflane  = $obj->getSuggestedPicks( $enemyPicks , $yourPicks, $banPicks, "OFFLANE");
+    $suggestedPicksTank     = $obj->getSuggestedPicks( $enemyPicks , $yourPicks, $banPicks, "TANK");
+
+
+    $suggestedBanCarry      = $obj->getSuggestedPicks( $yourPicks, $enemyPicks , $banPicks, "CARRY");
+    $suggestedBanSupport    = $obj->getSuggestedPicks( $yourPicks, $enemyPicks , $banPicks, "SUPPORT");
+    $suggestedBanMid        = $obj->getSuggestedPicks( $yourPicks, $enemyPicks , $banPicks, "MID");
+    $suggestedBanOfflane    = $obj->getSuggestedPicks( $yourPicks, $enemyPicks , $banPicks, "OFFLANE");
+    $suggestedBanTank       = $obj->getSuggestedPicks( $yourPicks, $enemyPicks , $banPicks, "TANK");
 
 
 
@@ -154,7 +180,6 @@
         padding: 4px 0px 6px 0px;
     }
 
-
     .picks {
         float:left;
     }
@@ -168,70 +193,106 @@
         padding: 4px 0px 6px 0px;
     }
 
+    .rows {
+        clear: both;
+        margin-top: 50px;
+
+    }
+
+
 </style>
 <html>
 
     <form action="index.php" method="post">
     <div>
-        <div class="col">
-            <div class="header">Your Pick</div>
-            <div><?php print SelectBox::create("yourPick1", $yourPick1 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourPick2", $yourPick2 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourPick3", $yourPick3 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourPick4", $yourPick4 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourPick5", $yourPick5 , $heroes); ?></div>
+        <div style="float:left; height:600px;">
+            <div class="col">
+                <div class="header">Your Pick</div>
+                <div><?php print SelectBox::create("yourPick1", $yourPick1 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourPick2", $yourPick2 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourPick3", $yourPick3 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourPick4", $yourPick4 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourPick5", $yourPick5 , $heroes); ?></div>
 
-            <div class="header">Your Ban</div>
-            <div><?php print SelectBox::create("yourBan1", $yourBan1 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourBan2", $yourBan2 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourBan3", $yourBan3 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourBan4", $yourBan4 , $heroes); ?></div>
-            <div><?php print SelectBox::create("yourBan5", $yourBan5 , $heroes); ?></div>
+                <div class="header">Your Ban</div>
+                <div><?php print SelectBox::create("yourBan1", $yourBan1 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourBan2", $yourBan2 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourBan3", $yourBan3 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourBan4", $yourBan4 , $heroes); ?></div>
+                <div><?php print SelectBox::create("yourBan5", $yourBan5 , $heroes); ?></div>
+            </div>
+            <div class="col">
+                <div class="header">Enemy Pick</div>
+                <div><?php print SelectBox::create("enemyPick1", $enemyPick1 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyPick2", $enemyPick2 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyPick3", $enemyPick3 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyPick4", $enemyPick4 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyPick5", $enemyPick5 , $heroes); ?></div>
+
+                <div class="header">Enemy Ban</div>
+                <div><?php print SelectBox::create("enemyBan1", $enemyBan1 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyBan2", $enemyBan2 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyBan3", $enemyBan3 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyBan4", $enemyBan4 , $heroes); ?></div>
+                <div><?php print SelectBox::create("enemyBan5", $enemyBan5 , $heroes); ?></div>
+            </div>
         </div>
 
-        <div class="col">
-            <div class="header">Enemy Pick</div>
-            <div><?php print SelectBox::create("enemyPick1", $enemyPick1 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyPick2", $enemyPick2 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyPick3", $enemyPick3 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyPick4", $enemyPick4 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyPick5", $enemyPick5 , $heroes); ?></div>
+        <div style="float:left;">
+            <div class="picks">
+                <div class="header">Suggested Picks</div>
+                <div class="container">
+                    <div class="type">Carry</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedPicksCarry ); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Support</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedPicksSupport ); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Mid</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedPicksMid); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Offlane</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedPicksOfflane); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Tank</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedPicksTank); ?></div>
+                </div>
+            </div>
 
-            <div class="header">Enemy Ban</div>
-            <div><?php print SelectBox::create("enemyBan1", $enemyBan1 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyBan2", $enemyBan2 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyBan3", $enemyBan3 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyBan4", $enemyBan4 , $heroes); ?></div>
-            <div><?php print SelectBox::create("enemyBan5", $enemyBan5 , $heroes); ?></div>
+            <div class="picks rows">
+                <div class="header">Suggested Ban</div>
+                <div class="container">
+                    <div class="type">Carry</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedBanCarry ); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Support</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedBanSupport ); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Mid</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedBanMid); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Offlane</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedBanOfflane); ?></div>
+                </div>
+                <div class="container">
+                    <div class="type">Tank</div>
+                    <div><?php $obj->displaySuggestedHeroes( $suggestedBanTank); ?></div>
+                </div>
+            </div>
+
+            <div class="picks rows">
+                <div class="header">Popular Combos</div>
+                <div>Mirana + Bane</div>
+                <div>Rubick + Naga</div>
+            </div>
         </div>
-
-
-
-        <div class="picks">
-            <div class="header">Suggested Picks</div>
-            <div class="container">
-                <div class="type">Carry</div>
-                <div><?php $obj->displaySuggestedHeroes( $suggestedPicksCarry ); ?></div>
-            </div>
-            <div class="container">
-                <div class="type">Support</div>
-                <div><?php $obj->displaySuggestedHeroes( $suggestedPicksSupport ); ?></div>
-            </div>
-            <div class="container">
-                <div class="type">Mid</div>
-                <div><?php $obj->displaySuggestedHeroes( $suggestedPicksMid); ?></div>
-            </div>
-            <div class="container">
-                <div class="type">Offlane</div>
-                <div><?php $obj->displaySuggestedHeroes( $suggestedPicksOfflane); ?></div>
-            </div>
-            <div class="container">
-                <div class="type">Tank</div>
-                <div><?php $obj->displaySuggestedHeroes( $suggestedPicksTank); ?></div>
-            </div>
-
-        </div>
-
 
     </div>
     </form>
