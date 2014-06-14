@@ -91,13 +91,13 @@
 
     <script>
 
-/*
+
         function deleteCounter(counter_hero_id, score){
 
             document.getElementById("hidden_counter_hero_id").value = counter_hero_id;
             document.getElementById("hidden_score").value = score;
         }
- */
+
 
 
     </script>
