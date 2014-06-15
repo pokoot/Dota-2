@@ -99,7 +99,7 @@ class Hero {
                     INNER JOIN hero AS h
                     ON c.counter_hero_id = h.id
                     WHERE c.hero_id = '$heroId'
-
+                    ORDER BY c.score DESC
                     ";
 
         //print "<pre>$q</pre>";
