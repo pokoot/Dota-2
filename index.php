@@ -60,8 +60,8 @@
 ?>
 <style type="text/css">
     .col {
-        width: 180px;
         float:left;
+        padding: 10px;
     }
     .header {
         font-weight: bold;
@@ -70,6 +70,7 @@
 
     .picks {
         float:left;
+        padding: 10px;
     }
 
     .picks .container  {
@@ -87,6 +88,15 @@
 
     }
 
+    .red {
+        background-color:#FFCCCC;
+    }
+    .green {
+        background-color:#CCFFCC;
+    }
+    .yellow {
+        background-color:#FFFFCC;
+    }
 
 </style>
 <html>
@@ -94,7 +104,7 @@
     <form action="index.php" method="post">
     <div>
         <div style="float:left; height:600px;">
-            <div class="col">
+            <div class="col green">
                 <div class="header">Your Pick</div>
                 <div><?php print SelectBox::create("yourPick1", $yourPick1 , $heroes); ?></div>
                 <div><?php print SelectBox::create("yourPick2", $yourPick2 , $heroes); ?></div>
@@ -109,7 +119,7 @@
                 <div><?php print SelectBox::create("yourBan4", $yourBan4 , $heroes); ?></div>
                 <div><?php print SelectBox::create("yourBan5", $yourBan5 , $heroes); ?></div>
             </div>
-            <div class="col">
+            <div class="col red">
                 <div class="header">Enemy Pick</div>
                 <div><?php print SelectBox::create("enemyPick1", $enemyPick1 , $heroes); ?></div>
                 <div><?php print SelectBox::create("enemyPick2", $enemyPick2 , $heroes); ?></div>
@@ -127,7 +137,7 @@
         </div>
 
         <div style="float:left;">
-            <div class="picks">
+            <div class="picks yellow">
                 <div class="header">Suggested Picks</div>
                 <div class="container">
                     <div class="type">Carry</div>
@@ -175,11 +185,6 @@
                 </div>
             </div>
 
-            <div class="picks rows">
-                <div class="header">Popular Combos</div>
-                <div>Mirana + Bane</div>
-                <div>Rubick + Naga</div>
-            </div>
         </div>
 
     </div>
