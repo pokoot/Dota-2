@@ -1,7 +1,6 @@
 ### DOTA 2
 
-Autoexec file configuration for your dota 2 with special binds from Meepo and Invoker skills.
-
+A small website used for counterpicking heroes 
 
 ### Adding a Console
 
